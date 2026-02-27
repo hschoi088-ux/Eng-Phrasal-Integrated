@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스피드 영어 퀴즈 (업그레이드)</title>
+    <title>스피드 영어 퀴즈 (계층형)</title>
     <style>
         body {
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
@@ -12,8 +12,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .container {
             background: white;
@@ -21,30 +23,108 @@
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             max-width: 650px;
-            width: 90%;
-            text-align: center;
+            width: 100%;
         }
-        h1 { margin-bottom: 20px; color: #1e293b; font-size: 24px; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        button {
-            padding: 12px 20px;
+        h1 { text-align: center; margin-bottom: 20px; color: #1e293b; font-size: 26px; }
+        
+        /* Week 탭 스타일 */
+        .week-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .week-tab {
+            padding: 10px 20px;
             border: none;
-            border-radius: 10px;
+            background: none;
             font-size: 16px;
             font-weight: bold;
+            color: #94a3b8;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .week-tab.active {
+            background-color: #e0f2fe;
+            color: #0284c7;
+        }
+        .week-tab:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* 카테고리 (구동사 / 영어회화) 영역 */
+        .category-section {
+            margin-bottom: 25px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .category-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #334155;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* 순한맛 / 매운맛 버튼 스타일 */
+        .flavor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media (max-width: 480px) {
+            .flavor-grid { grid-template-columns: 1fr; }
+        }
+        .flavor-btn {
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: left;
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .btn-mode { background-color: #3b82f6; color: white; }
-        .btn-mode:hover { background-color: #2563eb; transform: translateY(-2px); }
+        .flavor-btn:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+        .flavor-title {
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .flavor-desc {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.4;
+            word-break: keep-all;
+        }
+
+        /* 색상 포인트 */
+        .t-easy { color: #10b981; }
+        .t-hard { color: #ef4444; }
+
         .hidden { display: none !important; }
+        
+        /* 퀴즈 영역 스타일 (기존 유지) */
         #quiz-area { display: flex; flex-direction: column; gap: 20px; }
-        #question-counter { font-size: 15px; color: #64748b; font-weight: bold; }
+        #question-counter { font-size: 15px; color: #64748b; font-weight: bold; text-align: center;}
         
         .question-box { 
             font-size: 22px; font-weight: bold; word-break: keep-all; line-height: 1.5; 
             background: #f8fafc; padding: 30px 20px; border-radius: 12px;
             border: 2px dashed #cbd5e1; cursor: pointer; transition: background 0.2s;
+            text-align: center;
         }
         .question-box:hover { background: #e2e8f0; }
         .question-box::after { content: "\n(클릭하여 정답 확인)"; font-size: 13px; color: #94a3b8; display: block; margin-top: 10px; font-weight: normal; }
@@ -58,11 +138,11 @@
         .meaning-info { font-size: 15px; color: #b45309; margin-bottom: 15px; background: #fef3c7; padding: 8px 12px; border-radius: 8px; font-weight: 500;}
         
         .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .btn-tts { background-color: #8b5cf6; color: white; border-radius: 50px; padding: 8px 16px; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .btn-tts { background-color: #8b5cf6; color: white; border-radius: 50px; padding: 8px 16px; font-size: 14px; display: flex; align-items: center; gap: 5px; border: none; cursor: pointer; font-weight: bold;}
         .btn-tts:hover { background-color: #7c3aed; }
-        .btn-next { background-color: #10b981; color: white; padding: 12px 30px; }
+        .btn-next { background-color: #10b981; color: white; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;}
         .btn-next:hover { background-color: #059669; }
-        #btn-restart { background-color: #ef4444; color: white; width: 100%; padding: 15px; margin-top: 20px;}
+        #btn-restart { background-color: #ef4444; color: white; width: 100%; padding: 15px; margin-top: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;}
         #btn-restart:hover { background-color: #dc2626; }
     </style>
 </head>
@@ -72,13 +152,41 @@
     <h1 id="main-title">🚀 스피드 영어 퀴즈</h1>
     
     <div id="mode-selection">
-        <p style="color: #64748b; margin-bottom: 20px;">학습할 모드를 선택해 주세요. (랜덤 7문제)</p>
-        <div class="btn-group">
-            <button class="btn-mode" onclick="startQuiz('phrasal-easy')">🟢 구동사 순한맛</button>
-            <button class="btn-mode" onclick="startQuiz('phrasal-hard')" style="background-color: #ef4444;">🔴 구동사 매운맛</button>
-            <button class="btn-mode" onclick="startQuiz('conv-easy')" style="background-color: #10b981;">💬 영어회화 순한맛</button>
-            <button class="btn-mode" onclick="startQuiz('conv-hard')" style="background-color: #f59e0b;">🔥 영어회화 매운맛</button>
+        
+        <div class="week-tabs">
+            <button class="week-tab active">Week 1</button>
+            <button class="week-tab" disabled>Week 2 (준비중)</button>
+            <button class="week-tab" disabled>Week 3 (준비중)</button>
         </div>
+
+        <div class="category-section">
+            <h3 class="category-title">🧩 구동사 (Phrasal Verbs)</h3>
+            <div class="flavor-grid">
+                <button class="flavor-btn" onclick="startQuiz('phrasal-easy')">
+                    <span class="flavor-title t-easy">🟢 순한맛</span>
+                    <span class="flavor-desc">구동사 의미별로 짧고 쉬운 문장들이 선별해서 담겨있음</span>
+                </button>
+                <button class="flavor-btn" onclick="startQuiz('phrasal-hard')">
+                    <span class="flavor-title t-hard">🔴 매운맛</span>
+                    <span class="flavor-desc">전체 예문에서 선별됨</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <h3 class="category-title">🗣️ 영어회화 (Conversation)</h3>
+            <div class="flavor-grid">
+                <button class="flavor-btn" onclick="startQuiz('conv-easy')">
+                    <span class="flavor-title t-easy">💬 순한맛</span>
+                    <span class="flavor-desc">'대표문장'과 'model examples'만 담고 있음</span>
+                </button>
+                <button class="flavor-btn" onclick="startQuiz('conv-hard')">
+                    <span class="flavor-title t-hard">🔥 매운맛</span>
+                    <span class="flavor-desc">전체 예문</span>
+                </button>
+            </div>
+        </div>
+
     </div>
 
     <div id="quiz-area" class="hidden">
@@ -121,7 +229,7 @@
         "brush up on_1": "brush up on: 1. (오래전 배운 지식이나 기술을) 다시 복습하다, 다듬다"
     };
 
-    // 1. 구동사 순한맛 (13개)
+    // 1. 구동사 순한맛
     const phrasalEasy = [
         { ko: "자, 이 숫자들을 더해 보자.", en: "Let’s add up these numbers now.", source: "Day 001 순한맛", meaning: meanings["add up_1"] },
         { ko: "별것 아니게 보일 수 있어도, 하루 10분의 연습도 쌓이면 정말 큽니다.", en: "It might not seem like much, but 10 minutes of practice every day really adds up.", source: "Day 001 순한맛", meaning: meanings["add up_2"] },
@@ -138,14 +246,14 @@
         { ko: "지난 학기에 배운 내용을 다시 한번 복습해 보겠습니다.", en: "I’d like us to brush up on what we learned last semester.", source: "Day 005 순한맛", meaning: meanings["brush up on_1"] }
     ];
 
-    // 2. 구동사 매운맛 (전체 데이터 + 의미 매핑)
+    // 2. 구동사 매운맛
     const phrasalHard = [
         {ko: "별것 아니게 보일 수 있어도, 하루 10분의 연습도 쌓이면 정말 큽니다.", en: "It might not seem like much, but 10 minutes of practice every day really adds up.", source: "Day001 교재1", meaning: meanings["add up_2"]},
         {ko: "어제 집에 있었다고 했는데, 내 친구가 당신을 술집에서 봤다고 했어. 뭔가 앞뒤가 안 맞잖아.", en: "You told me you were at home, but my friend mentioned seeing you at a bar. Something doesn’t add up.", source: "Day001 교재1", meaning: meanings["add up_3"]},
         {ko: "자, 이 숫자들을 더해 보자. 5 더하기 3은 뭘까?", en: "Let’s add up these numbers now. What’s five plus three?", source: "Day001 교재1", meaning: meanings["add up_1"]},
         {ko: "월 10만 원도 쌓이면 4년 후에 거의 5백만 원이 된다.", en: "Just 100,000 won a month will add up to almost 5 million won in four years.", source: "Day001 교재1", meaning: meanings["add up_2"]},
         {ko: "그의 이야기에는 앞뒤가 맞지 않는 것이 있어요. 그가 거짓말을 하고 있는 게 틀림없어요.", en: "There’s something about his story that doesn’t add up. He must be telling a lie.", source: "Day001 교재1", meaning: meanings["add up_3"]},
-        {ko: "한 달에 커피값으로 백 달러 정도를 지출해. 나의 길티 플레저거든.", en: "I spend around a hundred bucks a month on coffee. It’s my guilty pleasure.", source: "Day001 교재2", meaning: meanings["add up_2"]}, //문맥상 이어지는 내용
+        {ko: "한 달에 커피값으로 백 달러 정도를 지출해. 나의 길티 플레저거든.", en: "I spend around a hundred bucks a month on coffee. It’s my guilty pleasure.", source: "Day001 교재2", meaning: meanings["add up_2"]},
         {ko: "한 달에 백 달러도 5년이면 6천 달러야. 집에서 만들어 먹는 게 어때?", en: "A hundred bucks a month will add up to $6,000 in five years. Why don’t you make coffee at home?", source: "Day001 교재2", meaning: meanings["add up_2"]},
         {ko: "지난 분기 매출 수치를 합해서 목표치와 비교해 주시겠어요?", en: "Can you add up the sales figures from last quarter and compare them to our targets?", source: "Day001 교재2", meaning: meanings["add up_1"]},
         {ko: "물론입니다. 계산해서 오늘 오후까지 세부 보고서를 준비해 두겠습니다.", en: "Sure thing. I’ll do the math and have a detailed report ready by this afternoon.", source: "Day001 교재2", meaning: meanings["add up_1"]},
@@ -169,7 +277,7 @@
         {ko: "의사 선생님이 제가 다시는 프로 선수로 뛸 수 없다고 했을 때 저는 무너졌습니다.", en: "When the doctor said I could never play professionally again, I broke down.", source: "Day003 교재1", meaning: meanings["break down_3"]},
         {ko: "스케줄을 세부적으로 말씀드릴게요.", en: "Let me break down the schedule.", source: "Day003 교재1", meaning: meanings["break down_4"]},
         {ko: "수치가 잘 이해되지 않네요. 미안한데 다시 한번 자세히 설명해 주시겠어요?", en: "Would you mind going back and breaking those down?", source: "Day003 교재1", meaning: meanings["break down_4"]},
-        {ko: "담배꽁초가 분해되는 데 18개월에서 10년이 걸리는 거 알았어?", en: "Did you know that cigarette butts take between 18 months and 10 years to break down?", source: "Day003 교재1", meaning: meanings["break down_2"]}, //분해되다
+        {ko: "담배꽁초가 분해되는 데 18개월에서 10년이 걸리는 거 알았어?", en: "Did you know that cigarette butts take between 18 months and 10 years to break down?", source: "Day003 교재1", meaning: meanings["break down_2"]},
         {ko: "제 차가 고속 도로에서 고장이 났습니다.", en: "My car broke down on the highway.", source: "Day003 교재1", meaning: meanings["break down_1"]},
         {ko: "항상 돈 이야기가 나오면 이런 대화가 깨집니다.", en: "but those talks always break down once money comes up.", source: "Day003 교재1", meaning: meanings["break down_2"]},
         {ko: "회사에서 계속 압박에 시달린 후에 결국 감정적으로 무너졌고 사무실에서 울었어요.", en: "After weeks of constant pressure at work, I finally broke down and cried in my office.", source: "Day003 교재1", meaning: meanings["break down_3"]},
@@ -186,7 +294,7 @@
         {ko: "여기 (지하라서) 신호가 끊겨.", en: "My signal is breaking up down here.", source: "Day004 교재1", meaning: meanings["break up_3"]},
         {ko: "사람들은 매일 같이 헤어지잖아. 너무 힘들게 받아들이지 마!", en: "People break up every day. Don’t take it so hard!", source: "Day004 교재1", meaning: meanings["break up_1"]},
         {ko: "자, 얘들아. 3명씩 조를 나누어라.", en: "OK, class. I need you to break up into groups of three.", source: "Day004 교재1", meaning: meanings["break up_2"]},
-        {ko: "오노 요코 때문에 비틀즈가 해체됐다고 한다.", en: "My dad says Yoko Ono broke up The Beatles.", source: "Day004 교재1", meaning: meanings["break up_1"]}, //해체
+        {ko: "오노 요코 때문에 비틀즈가 해체됐다고 한다.", en: "My dad says Yoko Ono broke up The Beatles.", source: "Day004 교재1", meaning: meanings["break up_1"]},
         {ko: "저는 하루 일과를 다양한 종류의 업무로 쪼갭니다.", en: "I like to break up my day with various kinds of tasks.", source: "Day004 교재1", meaning: meanings["break up_2"]},
         {ko: "네 말이 끊겨서 들려.", en: "You are breaking up.", source: "Day004 교재1", meaning: meanings["break up_3"]},
         {ko: "아무도 안 볼 텐데. 좀 더 짧은 클립으로 쪼개야 해.", en: "No one is gonna watch that. You need to break it up into smaller clips.", source: "Day004 교재2", meaning: meanings["break up_2"]},
@@ -205,7 +313,7 @@
         {ko: "작업 멘트를 연습해 보는 것이 내가 생각할 수 있는 전부였다.", en: "All I could think to do was brush up on some pickup lines.", source: "Day 5 교재3", meaning: meanings["brush up on_1"]}
     ];
 
-    // 3. 영어회화 전체 데이터 (전처리 용)
+    // 3. 영어회화 데이터
     const rawConvData = [
         { source: "Day001 교재1", ko: "저는 재택근무 체질이 아니에요. 늘 딴짓하게 되거든요", en: "Working from home isn’t for me. I always get distracted." },
         { source: "Day001 교재1", ko: "소개팅은 저랑 안 맞아요.", en: "Going on blind dates isn’t for me." },
@@ -310,10 +418,22 @@
         document.getElementById('quiz-area').classList.remove('hidden');
 
         let dataPool = [];
-        if (mode === 'phrasal-easy') { dataPool = phrasalEasy; isPhrasalMode = true; document.getElementById('main-title').innerText = "🟢 구동사 순한맛 퀴즈"; }
-        else if (mode === 'phrasal-hard') { dataPool = phrasalHard; isPhrasalMode = true; document.getElementById('main-title').innerText = "🔴 구동사 매운맛 퀴즈"; }
-        else if (mode === 'conv-easy') { dataPool = convEasy; isPhrasalMode = false; document.getElementById('main-title').innerText = "💬 영어회화 순한맛 퀴즈"; }
-        else if (mode === 'conv-hard') { dataPool = convHard; isPhrasalMode = false; document.getElementById('main-title').innerText = "🔥 영어회화 매운맛 퀴즈"; }
+        if (mode === 'phrasal-easy') { 
+            dataPool = phrasalEasy; isPhrasalMode = true; 
+            document.getElementById('main-title').innerText = "🟢 구동사 순한맛 퀴즈"; 
+        }
+        else if (mode === 'phrasal-hard') { 
+            dataPool = phrasalHard; isPhrasalMode = true; 
+            document.getElementById('main-title').innerText = "🔴 구동사 매운맛 퀴즈"; 
+        }
+        else if (mode === 'conv-easy') { 
+            dataPool = convEasy; isPhrasalMode = false; 
+            document.getElementById('main-title').innerText = "💬 영어회화 순한맛 퀴즈"; 
+        }
+        else if (mode === 'conv-hard') { 
+            dataPool = convHard; isPhrasalMode = false; 
+            document.getElementById('main-title').innerText = "🔥 영어회화 매운맛 퀴즈"; 
+        }
 
         // 7문제 랜덤 추출
         currentQuestions = shuffleArray(dataPool).slice(0, 7);
@@ -354,7 +474,7 @@
 
         document.getElementById('answer-section').classList.remove('hidden');
         
-        if(isPhrasalMode) {
+        if(isPhrasalMode && currentQuestions[currentIndex].meaning) {
             document.getElementById('meaning-info').classList.remove('hidden');
         }
         
