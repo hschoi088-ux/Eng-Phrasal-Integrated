@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스피드 영어 퀴즈 (계층형)</title>
+    <title>스피드 영어 퀴즈 (오답노트 기능 추가)</title>
     <style>
         body {
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
@@ -50,12 +50,9 @@
             background-color: #e0f2fe;
             color: #0284c7;
         }
-        .week-tab:disabled {
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
+        .week-tab:disabled { cursor: not-allowed; opacity: 0.5; }
 
-        /* 카테고리 (구동사 / 영어회화) 영역 */
+        /* 카테고리 영역 */
         .category-section {
             margin-bottom: 25px;
             background: #f8fafc;
@@ -64,86 +61,64 @@
             border: 1px solid #e2e8f0;
         }
         .category-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #334155;
-            margin-top: 0;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 18px; font-weight: bold; color: #334155;
+            margin-top: 0; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
         }
         
-        /* 순한맛 / 매운맛 버튼 스타일 */
-        .flavor-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        @media (max-width: 480px) {
-            .flavor-grid { grid-template-columns: 1fr; }
-        }
+        /* 순한맛 / 매운맛 버튼 */
+        .flavor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 480px) { .flavor-grid { grid-template-columns: 1fr; } }
         .flavor-btn {
-            background: white;
-            border: 2px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            background: white; border: 2px solid #cbd5e1; border-radius: 10px;
+            padding: 15px; text-align: left; cursor: pointer; transition: all 0.2s ease;
         }
-        .flavor-btn:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-            transform: translateY(-2px);
-        }
-        .flavor-title {
-            font-size: 16px;
-            font-weight: bold;
-            display: block;
-            margin-bottom: 6px;
-        }
-        .flavor-desc {
-            font-size: 13px;
-            color: #64748b;
-            line-height: 1.4;
-            word-break: keep-all;
-        }
-
-        /* 색상 포인트 */
-        .t-easy { color: #10b981; }
-        .t-hard { color: #ef4444; }
-
+        .flavor-btn:hover { border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
+        .flavor-title { font-size: 16px; font-weight: bold; display: block; margin-bottom: 6px; }
+        .flavor-desc { font-size: 13px; color: #64748b; line-height: 1.4; word-break: keep-all; }
+        .t-easy { color: #10b981; } .t-hard { color: #ef4444; }
         .hidden { display: none !important; }
         
-        /* 퀴즈 영역 스타일 (기존 유지) */
+        /* 퀴즈 영역 스타일 */
         #quiz-area { display: flex; flex-direction: column; gap: 20px; }
         #question-counter { font-size: 15px; color: #64748b; font-weight: bold; text-align: center;}
         
         .question-box { 
             font-size: 22px; font-weight: bold; word-break: keep-all; line-height: 1.5; 
             background: #f8fafc; padding: 30px 20px; border-radius: 12px;
-            border: 2px dashed #cbd5e1; cursor: pointer; transition: background 0.2s;
-            text-align: center;
+            border: 2px dashed #cbd5e1; cursor: pointer; transition: background 0.2s; text-align: center;
         }
         .question-box:hover { background: #e2e8f0; }
         .question-box::after { content: "\n(클릭하여 정답 확인)"; font-size: 13px; color: #94a3b8; display: block; margin-top: 10px; font-weight: normal; }
 
         .answer-box { 
-            background: #ecfdf5; padding: 25px 20px; border-radius: 12px;
-            border: 1px solid #a7f3d0; text-align: left;
+            background: #ecfdf5; padding: 25px 20px; border-radius: 12px; border: 1px solid #a7f3d0; text-align: left;
         }
         .en-text { font-size: 22px; color: #059669; font-weight: bold; margin-bottom: 15px; line-height: 1.4; word-break: keep-all;}
         .meta-info { font-size: 14px; color: #475569; margin-bottom: 5px; background: #fff; display: inline-block; padding: 4px 10px; border-radius: 20px; border: 1px solid #e2e8f0; }
         .meaning-info { font-size: 15px; color: #b45309; margin-bottom: 15px; background: #fef3c7; padding: 8px 12px; border-radius: 8px; font-weight: 500;}
         
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .btn-tts { background-color: #8b5cf6; color: white; border-radius: 50px; padding: 8px 16px; font-size: 14px; display: flex; align-items: center; gap: 5px; border: none; cursor: pointer; font-weight: bold;}
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 10px;}
+        .left-controls { display: flex; gap: 10px; }
+        
+        /* 버튼 스타일 */
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s;}
+        .btn-tts { background-color: #8b5cf6; color: white; display: flex; align-items: center; gap: 5px; }
         .btn-tts:hover { background-color: #7c3aed; }
-        .btn-next { background-color: #10b981; color: white; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;}
+        .btn-star { background-color: #e2e8f0; color: #475569; }
+        .btn-star.active { background-color: #fef08a; color: #ca8a04; border: 1px solid #fde047; }
+        .btn-next { background-color: #10b981; color: white; }
         .btn-next:hover { background-color: #059669; }
-        #btn-restart { background-color: #ef4444; color: white; width: 100%; padding: 15px; margin-top: 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;}
-        #btn-restart:hover { background-color: #dc2626; }
+        .btn-finish { background-color: #3b82f6; color: white; width: 100%; padding: 15px; font-size: 16px; margin-top: 10px; }
+        .btn-finish:hover { background-color: #2563eb; }
+        .btn-home { background-color: #64748b; color: white; width: 100%; padding: 15px; font-size: 16px; margin-top: 20px;}
+        .btn-home:hover { background-color: #475569; }
+
+        /* 복습(결과) 영역 스타일 */
+        #review-area { display: flex; flex-direction: column; gap: 15px; }
+        .review-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: left;}
+        .review-ko { font-size: 16px; font-weight: bold; color: #334155; margin-bottom: 8px; }
+        .review-en { font-size: 18px; font-weight: bold; color: #059669; margin-bottom: 8px; }
+        .review-empty { text-align: center; padding: 40px 20px; font-size: 18px; color: #10b981; font-weight: bold; background: #ecfdf5; border-radius: 12px;}
     </style>
 </head>
 <body>
@@ -152,7 +127,6 @@
     <h1 id="main-title">🚀 스피드 영어 퀴즈</h1>
     
     <div id="mode-selection">
-        
         <div class="week-tabs">
             <button class="week-tab active">Week 1</button>
             <button class="week-tab" disabled>Week 2 (준비중)</button>
@@ -182,11 +156,10 @@
                 </button>
                 <button class="flavor-btn" onclick="startQuiz('conv-hard')">
                     <span class="flavor-title t-hard">🔥 매운맛</span>
-                    <span class="flavor-desc">전체 예문</span>
+                    <span class="flavor-desc">전체 예문에서 선별됨</span>
                 </button>
             </div>
         </div>
-
     </div>
 
     <div id="quiz-area" class="hidden">
@@ -202,17 +175,29 @@
             <div class="meaning-info hidden" id="meaning-info">의미: </div>
             
             <div class="controls">
-                <button class="btn-tts" onclick="playTTS()">🔊 문장 듣기</button>
-                <button class="btn-next" id="btn-next" onclick="nextQuestion()">다음 문제 ➡</button>
+                <div class="left-controls">
+                    <button class="btn btn-tts" onclick="playTTS()">🔊 듣기</button>
+                    <button class="btn btn-star" id="btn-star" onclick="toggleStar()">⭐ 어려워요</button>
+                </div>
+                <button class="btn btn-next" id="btn-next" onclick="nextQuestion()">다음 문제 ➡</button>
             </div>
         </div>
 
-        <button id="btn-restart" class="hidden" onclick="resetQuiz()">처음으로 돌아가기</button>
+        <button class="btn btn-finish hidden" id="btn-finish" onclick="showReview()">결과 보기 (오답 노트) 📝</button>
+    </div>
+
+    <div id="review-area" class="hidden">
+        <h2 style="text-align: center; color: #1e293b; margin-top:0;">⭐ 나의 오답 노트</h2>
+        <p style="text-align: center; color: #64748b; font-size: 14px; margin-top:-10px;">어려웠던 문장들을 다시 확인해 보세요!</p>
+        
+        <div id="review-list">
+            </div>
+
+        <button class="btn btn-home" onclick="resetToHome()">🏠 처음으로 돌아가기</button>
     </div>
 </div>
 
 <script>
-    // 구동사 의미 사전 (매핑용)
     const meanings = {
         "add up_1": "add up: 1. (수 등을) 하나하나 더하다",
         "add up_2": "add up: 2. (점진적으로 쌓여) 합계가 결국 ~가 되다",
@@ -229,7 +214,6 @@
         "brush up on_1": "brush up on: 1. (오래전 배운 지식이나 기술을) 다시 복습하다, 다듬다"
     };
 
-    // 1. 구동사 순한맛
     const phrasalEasy = [
         { ko: "자, 이 숫자들을 더해 보자.", en: "Let’s add up these numbers now.", source: "Day 001 순한맛", meaning: meanings["add up_1"] },
         { ko: "별것 아니게 보일 수 있어도, 하루 10분의 연습도 쌓이면 정말 큽니다.", en: "It might not seem like much, but 10 minutes of practice every day really adds up.", source: "Day 001 순한맛", meaning: meanings["add up_2"] },
@@ -246,7 +230,6 @@
         { ko: "지난 학기에 배운 내용을 다시 한번 복습해 보겠습니다.", en: "I’d like us to brush up on what we learned last semester.", source: "Day 005 순한맛", meaning: meanings["brush up on_1"] }
     ];
 
-    // 2. 구동사 매운맛
     const phrasalHard = [
         {ko: "별것 아니게 보일 수 있어도, 하루 10분의 연습도 쌓이면 정말 큽니다.", en: "It might not seem like much, but 10 minutes of practice every day really adds up.", source: "Day001 교재1", meaning: meanings["add up_2"]},
         {ko: "어제 집에 있었다고 했는데, 내 친구가 당신을 술집에서 봤다고 했어. 뭔가 앞뒤가 안 맞잖아.", en: "You told me you were at home, but my friend mentioned seeing you at a bar. Something doesn’t add up.", source: "Day001 교재1", meaning: meanings["add up_3"]},
@@ -313,7 +296,6 @@
         {ko: "작업 멘트를 연습해 보는 것이 내가 생각할 수 있는 전부였다.", en: "All I could think to do was brush up on some pickup lines.", source: "Day 5 교재3", meaning: meanings["brush up on_1"]}
     ];
 
-    // 3. 영어회화 데이터
     const rawConvData = [
         { source: "Day001 교재1", ko: "저는 재택근무 체질이 아니에요. 늘 딴짓하게 되거든요", en: "Working from home isn’t for me. I always get distracted." },
         { source: "Day001 교재1", ko: "소개팅은 저랑 안 맞아요.", en: "Going on blind dates isn’t for me." },
@@ -394,15 +376,14 @@
         { source: "Day005 교재4", ko: "난 초밥이 너무 땡겨.", en: "I could totally go for some sushi." }
     ];
 
-    // 영어회화 분류 (순한맛: 대표 or 교재1 / 매운맛: 그 외)
     const convEasy = rawConvData.filter(item => item.source.includes('대표') || item.source.includes('교재1'));
     const convHard = rawConvData.filter(item => !(item.source.includes('대표') || item.source.includes('교재1')));
 
     let currentQuestions = [];
     let currentIndex = 0;
     let isPhrasalMode = false;
+    let starredQuestions = []; // 별표 체크된 질문 저장소
 
-    // 배열 셔플 함수
     function shuffleArray(array) {
         let shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -412,10 +393,11 @@
         return shuffled;
     }
 
-    // 퀴즈 시작
     function startQuiz(mode) {
         document.getElementById('mode-selection').classList.add('hidden');
         document.getElementById('quiz-area').classList.remove('hidden');
+        
+        starredQuestions = []; // 퀴즈 시작 시 별표 초기화
 
         let dataPool = [];
         if (mode === 'phrasal-easy') { 
@@ -435,21 +417,18 @@
             document.getElementById('main-title').innerText = "🔥 영어회화 매운맛 퀴즈"; 
         }
 
-        // 7문제 랜덤 추출
         currentQuestions = shuffleArray(dataPool).slice(0, 7);
         currentIndex = 0;
         
         loadQuestion();
     }
 
-    // 문제 로드
     function loadQuestion() {
         document.getElementById('answer-section').classList.add('hidden');
         document.getElementById('btn-next').classList.add('hidden');
-        document.getElementById('btn-restart').classList.add('hidden');
+        document.getElementById('btn-finish').classList.add('hidden');
         document.getElementById('meaning-info').classList.add('hidden');
         
-        // 박스 초기화 (클릭 유도)
         const koBox = document.getElementById('ko-box');
         koBox.style.cursor = 'pointer';
         koBox.style.pointerEvents = 'auto';
@@ -460,13 +439,21 @@
         document.getElementById('en-text').innerText = q.en;
         document.getElementById('source-info').innerText = `출처: ${q.source}`;
         
-        // 구동사 의미 처리
         if(isPhrasalMode && q.meaning) {
             document.getElementById('meaning-info').innerText = q.meaning;
         }
+
+        // 별표 버튼 상태 업데이트
+        const starBtn = document.getElementById('btn-star');
+        if (starredQuestions.includes(q)) {
+            starBtn.classList.add('active');
+            starBtn.innerText = "⭐ 어려워요 (저장됨)";
+        } else {
+            starBtn.classList.remove('active');
+            starBtn.innerText = "⭐ 어려워요";
+        }
     }
 
-    // 정답 확인 (박스 클릭 시)
     function showAnswer() {
         const koBox = document.getElementById('ko-box');
         koBox.style.cursor = 'default';
@@ -481,34 +468,72 @@
         if (currentIndex < 6) {
             document.getElementById('btn-next').classList.remove('hidden');
         } else {
-            document.getElementById('btn-restart').classList.remove('hidden');
+            document.getElementById('btn-finish').classList.remove('hidden');
         }
     }
 
-    // TTS 기능
+    function toggleStar() {
+        const q = currentQuestions[currentIndex];
+        const starBtn = document.getElementById('btn-star');
+        const index = starredQuestions.indexOf(q);
+        
+        if (index > -1) {
+            starredQuestions.splice(index, 1);
+            starBtn.classList.remove('active');
+            starBtn.innerText = "⭐ 어려워요";
+        } else {
+            starredQuestions.push(q);
+            starBtn.classList.add('active');
+            starBtn.innerText = "⭐ 어려워요 (저장됨)";
+        }
+    }
+
     function playTTS() {
         const textToSpeak = currentQuestions[currentIndex].en;
         if ('speechSynthesis' in window) {
-            // 실행 중인 음성 취소
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'en-US';
-            utterance.rate = 0.9; // 약간 천천히 읽어줌
+            utterance.rate = 0.9; 
             window.speechSynthesis.speak(utterance);
         } else {
             alert('이 브라우저에서는 음성 듣기 기능을 지원하지 않습니다.');
         }
     }
 
-    // 다음 문제로
     function nextQuestion() {
         currentIndex++;
         loadQuestion();
     }
 
-    // 처음으로 돌아가기
-    function resetQuiz() {
+    function showReview() {
         document.getElementById('quiz-area').classList.add('hidden');
+        document.getElementById('review-area').classList.remove('hidden');
+        document.getElementById('main-title').innerText = "결과 및 오답 노트";
+
+        const reviewList = document.getElementById('review-list');
+        reviewList.innerHTML = '';
+
+        if (starredQuestions.length === 0) {
+            reviewList.innerHTML = `<div class="review-empty">🎉 어려운 문장이 없습니다! 완벽해요! 🎉</div>`;
+        } else {
+            starredQuestions.forEach((q, idx) => {
+                let meaningHtml = (isPhrasalMode && q.meaning) ? `<div style="font-size: 13px; color: #b45309; background: #fef3c7; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 5px;">${q.meaning}</div>` : '';
+                
+                reviewList.innerHTML += `
+                    <div class="review-card">
+                        <div style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">${idx + 1}. 출처: ${q.source}</div>
+                        ${meaningHtml}
+                        <div class="review-ko">${q.ko}</div>
+                        <div class="review-en">${q.en}</div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function resetToHome() {
+        document.getElementById('review-area').classList.add('hidden');
         document.getElementById('mode-selection').classList.remove('hidden');
         document.getElementById('main-title').innerText = "🚀 스피드 영어 퀴즈";
     }
