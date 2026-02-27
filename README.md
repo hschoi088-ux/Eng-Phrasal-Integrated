@@ -88,7 +88,7 @@
             border: 2px dashed #cbd5e1; cursor: pointer; transition: background 0.2s; text-align: center;
         }
         .question-box:hover { background: #e2e8f0; }
-        .question-box::after { content: "\n(클릭하여 정답 확인)"; font-size: 13px; color: #94a3b8; display: block; margin-top: 10px; font-weight: normal; }
+        .question-box::after { content: "\(클릭하여 정답 확인)"; font-size: 13px; color: #94a3b8; display: block; margin-top: 10px; font-weight: normal; }
 
         .answer-box { 
             background: #ecfdf5; padding: 25px 20px; border-radius: 12px; border: 1px solid #a7f3d0; text-align: left;
